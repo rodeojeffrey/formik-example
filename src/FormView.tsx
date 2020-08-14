@@ -1,76 +1,52 @@
 import React from 'react';
 import styled from 'styled-components';
+import { FormikProps } from 'formik';
+import { IUser } from './action';
 
 interface IProps {
   className?: string;
-  setFirstName: (i: string) => void;
-  setLastName: (i: string) => void;
-  setUserName: (i: string) => void;
-  setEmail: (i: string) => void;
-  setPassword: (i: string) => void;
-  onSubmit: (e: React.FormEvent<HTMLButtonElement>) => void;
+  formik: FormikProps<IUser>;
 }
 
 function FormViewBase(props: IProps) {
-  const {
-    className,
-    setEmail,
-    setFirstName,
-    setLastName,
-    setPassword,
-    setUserName,
-    onSubmit
-  } = props;
+  const { className, formik } = props;
+  console.log(formik.errors);
   return (
     <div className={`${className}__form-container`}>
-      <form>
+      <form onSubmit={formik.handleSubmit}>
         <div className={`${className}__form-controls`}>
           <label>First Name</label>
-          <input
-            type="text"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setFirstName(e.target.value)
-            }
-          />
+          <input type="text" {...formik.getFieldProps('firstName')} />
         </div>
         <div className={`${className}__form-controls`}>
           <label>Last Name</label>
-          <input
-            type="text"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setLastName(e.target.value)
-            }
-          />
+          <input type="text" {...formik.getFieldProps('lastName')} />
         </div>
         <div className={`${className}__form-controls`}>
           <label>Email</label>
-          <input
-            type="text"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEmail(e.target.value)
-            }
-          />
+          <input type="text" {...formik.getFieldProps('email')} />
         </div>
         <div className={`${className}__form-controls`}>
           <label>Username</label>
-          <input
-            type="text"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setUserName(e.target.value)
-            }
-          />
+          <input type="text" {...formik.getFieldProps('username')} />
         </div>
         <div className={`${className}__form-controls`}>
           <label>Password</label>
-          <input
-            type="password"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setPassword(e.target.value)
-            }
-          />
+          <input type="password" {...formik.getFieldProps('password')} />
         </div>
-        <button onClick={onSubmit}>Submit</button>
+        <button>Submit</button>
       </form>
+      {formik.errors && (
+        <div>
+          <ul>
+            {Object.keys(formik.errors).map((key: string) => (
+              <li>
+                {key} - {formik.errors[key as keyof IUser]}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

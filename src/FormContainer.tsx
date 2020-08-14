@@ -1,48 +1,50 @@
-import React, { useState } from 'react';
-import FormView from './FormView';
+import React from 'react';
+import * as Yup from 'yup';
+import { useFormik } from 'formik';
 import { useDispatch } from 'react-redux';
+import FormView from './FormView';
 import { addUser } from './action';
 
 interface IProps {}
 
 function FormContainer(props: IProps) {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [username, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const dispatch = useDispatch();
+  const formik = useFormik({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      username: '',
+      email: '',
+      password: ''
+    },
+    validationSchema: Yup.object().shape({
+      firstName: Yup.string().required('Required').min(2, 'Too short'),
+      lastName: Yup.string().required('Required').min(2, 'Too short'),
+      username: Yup.string()
+        .required('Required')
+        .min(4, 'Too short')
+        .max(16, 'Too long')
+        .matches(/^\S+$/, 'No spaces allowed'),
+      email: Yup.string()
+        .required('Required')
+        .min(4, 'Too short')
+        .matches(
+          /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+          'Invalid email address'
+        ),
+      password: Yup.string()
+        .required('Required')
+        .min(8, 'Too short')
+        .matches(/\d/, 'You need a number')
+        .matches(/[A-Z]/, 'You need an upper')
+        .matches(/[a-z]/, 'You need a lower')
+    }),
+    onSubmit: values => {
+      console.log(values);
+      dispatch(addUser({ ...values }));
+    }
+  });
 
-  const onSubmit = (e: React.FormEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    if (firstName === '') {
-      return;
-    }
-    if (lastName === '') {
-      return;
-    }
-    if (username === '') {
-      return;
-    }
-    if (email === '') {
-      return;
-    }
-    if (password === '') {
-      return;
-    }
-
-    dispatch(addUser({ firstName, lastName, password, email, username }));
-  };
-
-  return (
-    <FormView
-      setFirstName={setFirstName}
-      setLastName={setLastName}
-      setUserName={setUserName}
-      setEmail={setEmail}
-      setPassword={setPassword}
-      onSubmit={onSubmit}
-    />
-  );
+  return <FormView formik={formik} />;
 }
 export default FormContainer;
